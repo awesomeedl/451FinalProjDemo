@@ -60,6 +60,11 @@ public class Piano : MonoBehaviour
         keyNotes[(int)note].key.Play(octave, audioSource);
     }
 
+    public void Stop(Note note)
+    {
+        keyNotes[(int)note].key.Stop(octave);
+    }
+
     void Awake()
     {
         foreach(KeyNotes k in keyNotes)

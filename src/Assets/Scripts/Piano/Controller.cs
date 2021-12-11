@@ -47,6 +47,31 @@ public class Controller : MonoBehaviour
             piano.Play(Piano.Note.As);
         if(Input.GetKeyDown(KeyCode.Semicolon))
             piano.Play(Piano.Note.B);
+
+        if(Input.GetKeyUp(KeyCode.S))
+            piano.Stop(Piano.Note.C);
+        if(Input.GetKeyUp(KeyCode.E))
+            piano.Stop(Piano.Note.Cs);
+        if(Input.GetKeyUp(KeyCode.D))
+            piano.Stop(Piano.Note.D);
+        if(Input.GetKeyUp(KeyCode.R))
+            piano.Stop(Piano.Note.Ds);
+        if(Input.GetKeyUp(KeyCode.F))
+            piano.Stop(Piano.Note.E);
+        if(Input.GetKeyUp(KeyCode.J))
+            piano.Stop(Piano.Note.F);
+        if(Input.GetKeyUp(KeyCode.I))
+            piano.Stop(Piano.Note.Fs);
+        if(Input.GetKeyUp(KeyCode.K))
+            piano.Stop(Piano.Note.G);
+        if(Input.GetKeyUp(KeyCode.O))
+            piano.Stop(Piano.Note.Gs);
+        if(Input.GetKeyUp(KeyCode.L))
+            piano.Stop(Piano.Note.A);
+        if(Input.GetKeyUp(KeyCode.P))
+            piano.Stop(Piano.Note.As);
+        if(Input.GetKeyUp(KeyCode.Semicolon))
+            piano.Stop(Piano.Note.B);
     }
 
     // Update is called once per frame

@@ -25,16 +25,32 @@ public class Key : MonoBehaviour
         switch(octave)
         {
             case Piano.Octave.Low:
-                Depress(Lo); 
+                OnKeyDown(Lo); 
                 audioSource.PlayOneShot(LoNote);
                 break;
             case Piano.Octave.Mid:
-                Depress(Mid); 
+                OnKeyDown(Mid); 
                 audioSource.PlayOneShot(MidNote);
                 break;
             case Piano.Octave.High:
-                Depress(Hi); 
+                OnKeyDown(Hi); 
                 audioSource.PlayOneShot(HiNote);
+                break;
+        }
+    }
+
+    public void Stop(Piano.Octave octave)
+    {
+        switch(octave)
+        {
+            case Piano.Octave.Low:
+                OnKeyUp(Lo); 
+                break;
+            case Piano.Octave.Mid:
+                OnKeyUp(Mid); 
+                break;
+            case Piano.Octave.High:
+                OnKeyUp(Hi); 
                 break;
         }
     }
@@ -61,39 +77,49 @@ public class Key : MonoBehaviour
         }
     }
 
-    void Depress(GameObject keyJoint)
+    public const float KEY_MAX_ANGLE = 30F;
+    public const float KEY_MIN_ANGLE = 0f;
+
+    public const float KEY_ROTATE_SPEED = 100F;
+
+    public void OnKeyDown(GameObject keyJoint)
     {
-        StartCoroutine(KeyDepress(keyJoint));
+        keyJoint.transform.rotation = Quaternion.AngleAxis(30f, Vector3.right);
     }
 
-    IEnumerator KeyDepress(GameObject keyJoint)
+    public void OnKeyUp(GameObject keyJoint)
     {
-        Quaternion original = keyJoint.transform.rotation;
-        Quaternion target = Quaternion.AngleAxis(30f, Vector3.right);
-        float timer = 0f;
-        float animateTime = 0.05f;
+        keyJoint.transform.rotation = Quaternion.identity;
+    }
 
-        while (timer < animateTime)
-        {
-            keyJoint.transform.rotation = Quaternion.Lerp(original, target, easeOut(timer / animateTime));
-            timer += Time.deltaTime;
-            yield return null;
-        }
+    // IEnumerator KeyDepress(GameObject keyJoint)
+    // {
+    //     Quaternion original = keyJoint.transform.rotation;
+    //     Quaternion target = Quaternion.AngleAxis(30f, Vector3.right);
+    //     float timer = 0f;
+    //     float animateTime = 0.05f;
+
+    //     while (timer < animateTime)
+    //     {
+    //         keyJoint.transform.rotation = Quaternion.Lerp(original, target, easeOut(timer / animateTime));
+    //         timer += Time.deltaTime;
+    //         yield return null;
+    //     }
         
-        target = original;
-        original = keyJoint.transform.rotation;
+    //     target = original;
+    //     original = keyJoint.transform.rotation;
 
-        timer = 0f; 
+    //     timer = 0f; 
 
-        while (timer < animateTime)
-        {
-            keyJoint.transform.rotation = Quaternion.Lerp(original, target, easeIn(timer / animateTime));
-            timer += Time.deltaTime;
-            yield return null;
-        }
+    //     while (timer < animateTime)
+    //     {
+    //         keyJoint.transform.rotation = Quaternion.Lerp(original, target, easeIn(timer / animateTime));
+    //         timer += Time.deltaTime;
+    //         yield return null;
+    //     }
 
-        keyJoint.transform.rotation = target;
-    }
+    //     keyJoint.transform.rotation = target;
+    // }
 
     void Awake()
     {
