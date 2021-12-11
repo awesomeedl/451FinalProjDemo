@@ -13,6 +13,7 @@ public class GetMidiInstructions : MonoBehaviour
     public Transform bottomBar;
     public List<Transform> fallingCubes;
     public List<List<(int, double, double)>> instrument_notes_lst;
+    float speed = 2f;
 
 
     // Start is called before the first frame update
@@ -30,9 +31,15 @@ public class GetMidiInstructions : MonoBehaviour
         // Falling Cubes
         fallingCubes = new List<Transform>();
 
-        // StartCoroutine(makeCubeAtTime(0, 30)); // time (seconds), note
-        // StartCoroutine(makeCubeAtTime(1, 70));
-        // StartCoroutine(makeCubeAtTime(2, 107));
+        // for (int i=0; i<12; i=i+2){
+        //     // StartCoroutine(makeCubeAtTime(i, 24+12+i)); //
+        //     float seconds = 1;
+        //     StartCoroutine(makeCubeAtTime(i, 24+12, seconds, 1));
+        //     StartCoroutine(makeCubeAtTime(i+1, 24+12, seconds, 2));
+        //     StartCoroutine(makeCubeAtTime(i+1, 24+12+1, seconds, 2));
+        //     StartCoroutine(makeCubeAtTime(i, 24+12+2, seconds, 1));
+
+        // }
 
         putCubesToMusic(0); // instrument
 
@@ -50,7 +57,7 @@ public class GetMidiInstructions : MonoBehaviour
 
     void fallingCubeMovement()
     {
-        float speed = 1f;
+        //float speed = 2f;
         for (int i = 0; i < fallingCubes.Count; i++)
         {
             // Destroy
@@ -67,30 +74,64 @@ public class GetMidiInstructions : MonoBehaviour
         }
     }
 
-    IEnumerator makeCubeAtTime(double time, int note)
+    IEnumerator makeCubeAtTime(double time, int note, float dur, int color_num)
     {
         yield return new WaitForSeconds((float)time);
-        makeCubeAtPos(note);
+        makeCubeAtPos(note, dur, color_num);
     }
 
-    void makeCubeAtPos(int note){
-        float barLength = topBar.localScale.x;
+    void makeCubeAtPos(int note, float dur, int color_num){
+        // Plan : across bar, a note cube can fall in one of the 12 keys. 
+        // I can subtract 21 from a note, and then do modulo 12 to find remainder. 21-21 % 12 = 0, 22-21 % 12 = 
+
+        float barLength = topBar.localScale.x - 1f;
         float min = 21f;
         float max = 108f;
-        float posInRange = ((float)note-min)/(max-min);
+
+        float posInRange = ((((float)note-24f) % 12f) / 11f) /*-(1f/24f)*/ ; // /12 // ((float)note-min)/(max-min); //  note 30 : 9/87
+        int octave = ((note-24) / 12); // determine color, 
+        Debug.Log(note);
+        int baseOctave = 2;
+
+        float cubeScale = 1f/(12) * barLength;
+        float cubeHeight = dur*speed ; //note dur*speed  //fallingCube.transform.localScale.y/4f;
+
 
         Vector3 leftMostPos = topBar.position - (barLength/2f)*(topBar.right);
         Vector3 posOnBar = (posInRange*barLength*topBar.right);
-        Vector3 spawnPos = leftMostPos + posOnBar;
-        float cubeScale = 1f/(max-min) * barLength;
+        Vector3 spawnHeightOffset = topBar.up*cubeHeight/2f;
+        Vector3 spawnPos = leftMostPos + posOnBar + spawnHeightOffset;
         
         GameObject fallingCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         fallingCube.transform.SetParent (transform);
-        fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-        fallingCube.transform.localScale = new Vector3(cubeScale, fallingCube.transform.localScale.y/4f, cubeScale);
+
+        // if (octave == baseOctave)
+        // {
+        //     fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+        // }
+        // else if (octave == baseOctave+1)
+        // {
+        //     fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
+        // }
+        // else if (octave == baseOctave+2)
+        // {
+        //     fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.green);
+        // }
+
+
+        if (color_num == 1)
+        {
+            fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+        }
+        else if (color_num == 2)
+        {
+            fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
+        }
+        
+        fallingCube.transform.localScale = new Vector3(cubeScale, cubeHeight, cubeScale);
         fallingCube.transform.position =  spawnPos;
 
-        fallingCubes.Add(fallingCube.transform);
+        fallingCubes.Add(fallingCube.transform); //
     }
 
     void putCubesToMusic(int instrument_num) // readTextFile() needs to be called before this
@@ -100,10 +141,11 @@ public class GetMidiInstructions : MonoBehaviour
             int note = (instrument_notes_lst[instrument_num][j].Item1);
             double start = (instrument_notes_lst[instrument_num][j].Item2);
             double end = (instrument_notes_lst[instrument_num][j].Item3);
+            float dur = (float)end-(float)start;
 
-            Debug.Log("start : " + start);
+            // Debug.Log("start : " + start);
 
-            StartCoroutine(makeCubeAtTime(start, note)); // time (seconds), note
+            StartCoroutine(makeCubeAtTime(start, note, dur, 1)); // time (seconds), note
         }
     }
 
