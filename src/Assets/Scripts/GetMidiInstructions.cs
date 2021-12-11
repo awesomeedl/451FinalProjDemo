@@ -13,7 +13,9 @@ public class GetMidiInstructions : MonoBehaviour
     public Transform bottomBar;
     public List<Transform> fallingCubes;
     public List<List<(int, double, double)>> instrument_notes_lst;
-    float speed = 2f;
+    float speed = 3f;
+    public AudioSource audioSource;
+    public AudioClip music;
 
 
     // Start is called before the first frame update
@@ -29,7 +31,13 @@ public class GetMidiInstructions : MonoBehaviour
         bottomBar.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
 
         // Falling Cubes
+        int instrument = 0;
         fallingCubes = new List<Transform>();
+
+        float timeOffset = getTimeOffset(instrument);
+        Debug.Log("timeOffset : "+timeOffset);
+        StartCoroutine(playMusicAtTime(timeOffset));
+
 
         // for (int i=0; i<12; i=i+2){
         //     // StartCoroutine(makeCubeAtTime(i, 24+12+i)); //
@@ -41,9 +49,7 @@ public class GetMidiInstructions : MonoBehaviour
 
         // }
 
-        putCubesToMusic(0); // instrument
-
-        // play music file
+        putCubesToMusic(instrument);
 
 
     }
@@ -61,7 +67,8 @@ public class GetMidiInstructions : MonoBehaviour
         for (int i = 0; i < fallingCubes.Count; i++)
         {
             // Destroy
-            if (fallingCubes[i].gameObject != null && fallingCubes[i].position.y < bottomBar.position.y)
+            float cubeTop = fallingCubes[i].position.y + (fallingCubes[i].localScale.y/2f);
+            if (fallingCubes[i].gameObject != null && cubeTop < bottomBar.position.y)
             {
                 Destroy(fallingCubes[i].gameObject);
                 fallingCubes.Remove(fallingCubes[i]);
@@ -90,7 +97,7 @@ public class GetMidiInstructions : MonoBehaviour
 
         float posInRange = ((((float)note-24f) % 12f) / 11f) /*-(1f/24f)*/ ; // /12 // ((float)note-min)/(max-min); //  note 30 : 9/87
         int octave = ((note-24) / 12); // determine color, 
-        Debug.Log(note);
+        // Debug.Log(note);
         int baseOctave = 2;
 
         float cubeScale = 1f/(12) * barLength;
@@ -105,28 +112,28 @@ public class GetMidiInstructions : MonoBehaviour
         GameObject fallingCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         fallingCube.transform.SetParent (transform);
 
-        // if (octave == baseOctave)
-        // {
-        //     fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-        // }
-        // else if (octave == baseOctave+1)
-        // {
-        //     fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
-        // }
-        // else if (octave == baseOctave+2)
-        // {
-        //     fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.green);
-        // }
-
-
-        if (color_num == 1)
+        if (octave == baseOctave)
         {
             fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
         }
-        else if (color_num == 2)
+        else if (octave == baseOctave+1)
         {
             fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
         }
+        else if (octave == baseOctave+2)
+        {
+            fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.green);
+        }
+
+
+        // if (color_num == 1)
+        // {
+        //     fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+        // }
+        // else if (color_num == 2)
+        // {
+        //     fallingCube.GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
+        // }
         
         fallingCube.transform.localScale = new Vector3(cubeScale, cubeHeight, cubeScale);
         fallingCube.transform.position =  spawnPos;
@@ -148,6 +155,31 @@ public class GetMidiInstructions : MonoBehaviour
             StartCoroutine(makeCubeAtTime(start, note, dur, 1)); // time (seconds), note
         }
     }
+
+
+    float getTimeOffset(int instrument_num) // readTextFile() needs to be called before this
+    {
+        double start = instrument_notes_lst[instrument_num][0].Item2; // first note
+        float startTime = (float)start;
+        float fallTime = (topBar.position.y - bottomBar.position.y) / speed; 
+
+        Debug.Log("distance : " + (topBar.position.y - bottomBar.position.y));
+        Debug.Log("speed : " + speed);
+        Debug.Log("startTime : " + startTime);
+        
+        float timeOffset = fallTime; // + startTime/speed;
+
+        return timeOffset;
+    }
+
+    IEnumerator playMusicAtTime(float time)
+    {
+        yield return new WaitForSeconds(time);
+
+        Debug.Log("GOT HERE");
+        audioSource.PlayOneShot(music);
+    }
+
 
 
     List<List<(int, double, double)>> readTextFile(string file_path)
