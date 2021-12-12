@@ -13,9 +13,12 @@ public class GetMidiInstructions : MonoBehaviour
     public Transform bottomBar;
     public List<Transform> fallingCubes;
     public List<List<(int, double, double)>> instrument_notes_lst;
-    float speed = 3f;
+    float speed = 7f;
+    float defSize = 50f;
+    int baseOctave = 2;
     public AudioSource audioSource;
     public AudioClip music;
+    public Transform SmoothCube;
 
 
     // Start is called before the first frame update
@@ -67,7 +70,7 @@ public class GetMidiInstructions : MonoBehaviour
         for (int i = 0; i < fallingCubes.Count; i++)
         {
             // Destroy
-            float cubeTop = fallingCubes[i].position.y + (fallingCubes[i].localScale.y/2f);
+            float cubeTop = fallingCubes[i].position.y + (fallingCubes[i].localScale.y/(2f*defSize));
             if (fallingCubes[i].gameObject != null && cubeTop < bottomBar.position.y)
             {
                 Destroy(fallingCubes[i].gameObject);
@@ -95,21 +98,25 @@ public class GetMidiInstructions : MonoBehaviour
         float min = 21f;
         float max = 108f;
 
-        float posInRange = ((((float)note-24f) % 12f) / 11f) /*-(1f/24f)*/ ; // /12 // ((float)note-min)/(max-min); //  note 30 : 9/87
+        float posInRange = ((((float)note-24f) % 24f) / 23f);  // ((float)note-min)/(max-min); //  note 30 : 9/87
         int octave = ((note-24) / 12); // determine color, 
         // Debug.Log(note);
-        int baseOctave = 2;
+        
 
-        float cubeScale = 1f/(12) * barLength;
-        float cubeHeight = dur*speed ; //note dur*speed  //fallingCube.transform.localScale.y/4f;
+        
+        float cubeScale = defSize; //1f*defSize/(12) * barLength;
+        float cubeHeight = dur*speed*defSize ; //note dur*speed  //fallingCube.transform.localScale.y/4f;
 
 
         Vector3 leftMostPos = topBar.position - (barLength/2f)*(topBar.right);
         Vector3 posOnBar = (posInRange*barLength*topBar.right);
-        Vector3 spawnHeightOffset = topBar.up*cubeHeight/2f;
+        Vector3 spawnHeightOffset = topBar.up*cubeHeight/(2f*defSize);
         Vector3 spawnPos = leftMostPos + posOnBar + spawnHeightOffset;
         
-        GameObject fallingCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject fallingCube = Instantiate(SmoothCube.gameObject, spawnPos, Quaternion.identity); //GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Vector3 scaleChange = new Vector3(50f, 50f, 50f);
+        fallingCube.transform.localScale = scaleChange;
+        
         fallingCube.transform.SetParent (transform);
 
         if (octave == baseOctave)
@@ -136,6 +143,7 @@ public class GetMidiInstructions : MonoBehaviour
         // }
         
         fallingCube.transform.localScale = new Vector3(cubeScale, cubeHeight, cubeScale);
+        // fallingCube.transform.localScale *= scaleChange;
         fallingCube.transform.position =  spawnPos;
 
         fallingCubes.Add(fallingCube.transform); //
@@ -163,9 +171,9 @@ public class GetMidiInstructions : MonoBehaviour
         float startTime = (float)start;
         float fallTime = (topBar.position.y - bottomBar.position.y) / speed; 
 
-        Debug.Log("distance : " + (topBar.position.y - bottomBar.position.y));
-        Debug.Log("speed : " + speed);
-        Debug.Log("startTime : " + startTime);
+        // Debug.Log("distance : " + (topBar.position.y - bottomBar.position.y));
+        // Debug.Log("speed : " + speed);
+        // Debug.Log("startTime : " + startTime);
         
         float timeOffset = fallTime; // + startTime/speed;
 
@@ -176,7 +184,7 @@ public class GetMidiInstructions : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
 
-        Debug.Log("GOT HERE");
+        // Debug.Log("GOT HERE");
         audioSource.PlayOneShot(music);
     }
 
