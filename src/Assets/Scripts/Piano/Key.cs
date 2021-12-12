@@ -11,7 +11,10 @@ public class Key : MonoBehaviour
     public AudioClip HiNote, MidNote, LoNote;
 
     public bool isBlackKey;
+
     Color originalColor;
+
+    public GameObject noteEffect;
 
     public void SetAudioClip(AudioClip hi, AudioClip mid, AudioClip lo)
     {
@@ -84,12 +87,22 @@ public class Key : MonoBehaviour
 
     public void OnKeyDown(GameObject keyJoint)
     {
+        noteEffect.SetActive(true);
         keyJoint.transform.rotation = Quaternion.AngleAxis(30f, Vector3.left);
+        foreach(var g in keyJoint.GetComponentsInChildren<NodePrimitive>())
+        {
+            g.MyColor = Color.yellow;
+        }
     }
 
     public void OnKeyUp(GameObject keyJoint)
     {
+        noteEffect.SetActive(false);
         keyJoint.transform.rotation = Quaternion.identity;
+        foreach(var g in keyJoint.GetComponentsInChildren<NodePrimitive>())
+        {
+            g.MyColor = originalColor;
+        }
     }
 
     // IEnumerator KeyDepress(GameObject keyJoint)
@@ -128,6 +141,7 @@ public class Key : MonoBehaviour
         MidNode = Mid.GetComponent<SceneNode>().PrimitiveList[0];
         HiNode = Hi.GetComponent<SceneNode>().PrimitiveList[0];
     }
+
 
     float easeOut(float f)
     {

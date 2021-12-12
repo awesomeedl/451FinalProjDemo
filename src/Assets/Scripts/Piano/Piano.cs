@@ -73,6 +73,11 @@ public class Piano : MonoBehaviour
             AudioClip Mid = Resources.Load<AudioClip>("piano-mp3/" + keys[i].name + (2 + m * 3));
             AudioClip Lo = Resources.Load<AudioClip>("piano-mp3/" + keys[i].name + (1 + m * 3));
             keys[i].SetAudioClip(Hi, Mid, Lo);
+
+            GameObject p = Instantiate(Resources.Load("note_effect") as GameObject);
+            p.transform.position = keys[i].gameObject.GetComponent<SceneNode>().NodeOrigin;
+            p.SetActive(false);
+            keys[i].noteEffect = p;
         }
     }
 }
