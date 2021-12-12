@@ -8,7 +8,7 @@ public class Key : MonoBehaviour
 
     NodePrimitive HiNode, MidNode, LoNode;
 
-    AudioClip HiNote, MidNote, LoNote;
+    public AudioClip HiNote, MidNote, LoNote;
 
     public bool isBlackKey;
     Color originalColor;
@@ -84,7 +84,7 @@ public class Key : MonoBehaviour
 
     public void OnKeyDown(GameObject keyJoint)
     {
-        keyJoint.transform.rotation = Quaternion.AngleAxis(30f, Vector3.right);
+        keyJoint.transform.rotation = Quaternion.AngleAxis(30f, Vector3.left);
     }
 
     public void OnKeyUp(GameObject keyJoint)

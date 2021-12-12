@@ -4,15 +4,11 @@ using UnityEngine;
 
 public class Piano : MonoBehaviour
 {
-    [System.Serializable]
-    public struct KeyNotes
-    {
-        public Key key;
-        public AudioClip Lo, Mid, Hi;
-    }
-
     [Tooltip("Place in order of \n C, C#, D, D#, E, F, F#, G, G#, A, A#, B")]
-    public KeyNotes[] keyNotes;
+
+    public Key[] keys;
+
+    public int numKeys;
 
     public enum Octave
     {
@@ -42,9 +38,9 @@ public class Piano : MonoBehaviour
         {
             octave++;
         }
-        foreach(KeyNotes k in keyNotes)
+        foreach(Key k in keys)
         {
-            k.key.HighLightOctave(octave);
+            k.HighLightOctave(octave);
         }
     }
 
@@ -52,24 +48,31 @@ public class Piano : MonoBehaviour
     public void Play(char note)
     {
         int index = char.ToLower(note) - 'c';
-        keyNotes[index].key.Play(octave, audioSource);
+        keys[index].Play(octave, audioSource);
     }
 
     public void Play(Note note)
     {
-        keyNotes[(int)note].key.Play(octave, audioSource);
+        keys[(int)note].Play(octave, audioSource);
     }
 
     public void Stop(Note note)
     {
-        keyNotes[(int)note].key.Stop(octave);
+        keys[(int)note].Stop(octave);
     }
 
     void Awake()
     {
-        foreach(KeyNotes k in keyNotes)
+        keys = new Key[24];
+        for(int i = 0; i < numKeys; i++)
         {
-            k.key.SetAudioClip(k.Hi, k.Mid, k.Lo);
+            keys[i] = transform.GetChild(i).GetComponent<Key>();
+                        keys[i].gameObject.GetComponent<SceneNode>().NodeOrigin.x = i;
+            int m = i / 8;
+            AudioClip Hi = Resources.Load<AudioClip>("piano-mp3/" + keys[i].name + (3 + m * 3));
+            AudioClip Mid = Resources.Load<AudioClip>("piano-mp3/" + keys[i].name + (2 + m * 3));
+            AudioClip Lo = Resources.Load<AudioClip>("piano-mp3/" + keys[i].name + (1 + m * 3));
+            keys[i].SetAudioClip(Hi, Mid, Lo);
         }
     }
 }
