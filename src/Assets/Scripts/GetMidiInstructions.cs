@@ -11,37 +11,51 @@ public class GetMidiInstructions : MonoBehaviour
 {
     public Transform topBar;
     public Transform bottomBar;
-    public List<Transform> fallingCubes;
-    public List<List<(int, double, double)>> instrument_notes_lst;
+    List<Transform> fallingCubes;
+    List<List<(int, double, double)>> instrument_notes_lst;
     float speed = 7f;
     float defSize = 50f;
     int baseOctave = 2;
     public AudioSource audioSource;
-    public AudioClip music;
+    public List<AudioClip> musicLst;
     public Transform SmoothCube;
+
+    List<string> paths;
+    bool musicPlaying = false;
+    public int music_index; // this selects what song to play
 
 
     // Start is called before the first frame update
     void Start()
     {
         // Read Txt File
-        string path = "Assets/Resources/all_star_midi_data.txt";
-        instrument_notes_lst = new List<List<(int, double, double)>>();
-        instrument_notes_lst = readTextFile(path);
+        // string path = "Assets/Resources/all_star_midi_data.txt";
+
+
+
+        paths = new List<string>();
+        paths.Add("midi_0");
+        paths.Add("midi_1");
+
+        // instrument_notes_lst = new List<List<(int, double, double)>>();
+        // instrument_notes_lst = readTextFile(paths[music_index]);
 
         // Color Bars
         topBar.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
         bottomBar.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
 
         // Falling Cubes
-        int instrument = 0;
+        // int instrument = 0;
         fallingCubes = new List<Transform>();
 
-        float timeOffset = getTimeOffset(instrument);
-        Debug.Log("timeOffset : "+timeOffset);
-        StartCoroutine(playMusicAtTime(timeOffset));
+        // float timeOffset = getTimeOffset(instrument);
+        // Debug.Log("timeOffset : "+timeOffset);
+        // StartCoroutine(playMusicAtTime(timeOffset));
+
+        // putCubesToMusic(instrument);
 
 
+        // TESTING
         // for (int i=0; i<12; i=i+2){
         //     // StartCoroutine(makeCubeAtTime(i, 24+12+i)); //
         //     float seconds = 1;
@@ -49,18 +63,54 @@ public class GetMidiInstructions : MonoBehaviour
         //     StartCoroutine(makeCubeAtTime(i+1, 24+12, seconds, 2));
         //     StartCoroutine(makeCubeAtTime(i+1, 24+12+1, seconds, 2));
         //     StartCoroutine(makeCubeAtTime(i, 24+12+2, seconds, 1));
-
         // }
+    }
+
+
+    public void restartEverything()
+    {
+        for (int i = 0; i < fallingCubes.Count; i++) 
+        {
+            Destroy(fallingCubes[i].gameObject);
+            //fallingCubes.Remove(fallingCubes[i]);
+        }
+        fallingCubes = new List<Transform>();
+
+        StopAllCoroutines();
+
+        audioSource.Stop();
+    }
+
+    public void StartAllStar()
+    {
+        if(musicPlaying)
+        {
+            restartEverything();
+        }
+        musicPlaying = true;
+        
+        
+        music_index = 0;
+        int instrument = 0;
+
+        instrument_notes_lst = new List<List<(int, double, double)>>();
+        instrument_notes_lst = readTextFile(paths[music_index]);
+        
+        float timeOffset = getTimeOffset(instrument);
+        Debug.Log("timeOffset : "+timeOffset);
+        StartCoroutine(playMusicAtTime(timeOffset)); // + Time.time
 
         putCubesToMusic(instrument);
-
-
     }
 
     // Update is called once per frame
     void Update()
     {
-        fallingCubeMovement();
+        if(musicPlaying)
+        {
+            fallingCubeMovement();
+        }
+        
     }
 
 
@@ -161,7 +211,7 @@ public class GetMidiInstructions : MonoBehaviour
             // Debug.Log("start : " + start);
 
             StartCoroutine(makeCubeAtTime(start, note, dur, 1)); // time (seconds), note
-        }
+        }//+Time.time
     }
 
 
@@ -185,7 +235,7 @@ public class GetMidiInstructions : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         // Debug.Log("GOT HERE");
-        audioSource.PlayOneShot(music);
+        audioSource.PlayOneShot(musicLst[music_index]);
     }
 
 
@@ -205,7 +255,7 @@ public class GetMidiInstructions : MonoBehaviour
         // StreamReader inp_stm = new StreamReader(file_path);
 
         // WEBGL Specific way of reading a file
-        StringReader inp_stm = new StringReader(Resources.Load<TextAsset>("midi").ToString());
+        StringReader inp_stm = new StringReader(Resources.Load<TextAsset>(file_path).ToString()); // midi_0
 
         //while(!inp_stm.EndOfStream)
         while(inp_stm.Peek() > 0)
