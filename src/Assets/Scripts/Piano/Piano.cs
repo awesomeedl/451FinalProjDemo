@@ -31,6 +31,7 @@ public class Piano : MonoBehaviour
 
     public void CycleOctave()
     {
+        ResetKeysPos();
         if(octave == Octave.High)
         {
             octave = Octave.Low;
@@ -62,6 +63,17 @@ public class Piano : MonoBehaviour
         keys[(int)note].Stop(octave);
     }
 
+    public void ResetKeysPos()
+    {
+        foreach(Key k in keys)
+        {
+            k.Stop(Octave.Low);
+            k.Stop(Octave.Mid);
+            k.Stop(Octave.High);
+            k.HighLightOctave(octave);
+        }
+    }
+
     void Awake()
     {
         keys = new Key[24];
@@ -69,7 +81,7 @@ public class Piano : MonoBehaviour
         {
             keys[i] = transform.GetChild(i).GetComponent<Key>();
                         keys[i].gameObject.GetComponent<SceneNode>().NodeOrigin.x = i;
-            int m = i / 8;
+            int m = i / 12;
             AudioClip Hi = Resources.Load<AudioClip>("piano-mp3/" + keys[i].name + (3 + m * 3));
             AudioClip Mid = Resources.Load<AudioClip>("piano-mp3/" + keys[i].name + (2 + m * 3));
             AudioClip Lo = Resources.Load<AudioClip>("piano-mp3/" + keys[i].name + (1 + m * 3));
