@@ -103,6 +103,29 @@ public class GetMidiInstructions : MonoBehaviour
         putCubesToMusic(instrument);
     }
 
+    public void StartSuperSmashBros()
+    {
+        if(musicPlaying)
+        {
+            restartEverything();
+        }
+        musicPlaying = true;
+        
+        
+        music_index = 1; // this is the only thing changed
+        int instrument = 0;
+
+        instrument_notes_lst = new List<List<(int, double, double)>>();
+        instrument_notes_lst = readTextFile(paths[music_index]);
+        
+        float timeOffset = getTimeOffset(instrument);
+        Debug.Log("timeOffset : "+timeOffset);
+        StartCoroutine(playMusicAtTime(timeOffset)); // + Time.time
+
+        putCubesToMusic(instrument);
+    }
+
+
     // Update is called once per frame
     void Update()
     {
@@ -235,6 +258,7 @@ public class GetMidiInstructions : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         // Debug.Log("GOT HERE");
+        Debug.Log("music_index" + music_index);
         audioSource.PlayOneShot(musicLst[music_index]);
     }
 
