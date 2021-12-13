@@ -13,6 +13,7 @@ public class Key : MonoBehaviour
     public bool isBlackKey;
 
     Color originalColor;
+    Color selectColor;
 
     public GameObject noteEffect;
 
@@ -80,18 +81,13 @@ public class Key : MonoBehaviour
         }
     }
 
-    public const float KEY_MAX_ANGLE = 30F;
-    public const float KEY_MIN_ANGLE = 0f;
-
-    public const float KEY_ROTATE_SPEED = 100F;
-
     public void OnKeyDown(GameObject keyJoint)
     {
         noteEffect.SetActive(true);
         keyJoint.transform.rotation = Quaternion.AngleAxis(30f, Vector3.left);
         foreach(var g in keyJoint.GetComponentsInChildren<NodePrimitive>())
         {
-            g.MyColor = Color.yellow;
+            g.MyColor = selectColor;
         }
     }
 
@@ -136,6 +132,7 @@ public class Key : MonoBehaviour
 
     void Awake()
     {
+        selectColor = new Color(0, 144, 255);
         originalColor = isBlackKey ? Color.black : Color.white;
         LoNode = Lo.GetComponent<SceneNode>().PrimitiveList[0];
         MidNode = Mid.GetComponent<SceneNode>().PrimitiveList[0];
