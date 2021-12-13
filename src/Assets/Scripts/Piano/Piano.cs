@@ -18,7 +18,8 @@ public class Piano : MonoBehaviour
 
     public enum Note
     {
-        C, Cs, D, Ds, E, F, Fs, G, Gs, A, As, B
+        C, Cs, D, Ds, E, F, Fs, G, Gs, A, As, B, 
+        C2, Cs2, D2, Ds2, E2, F2, Fs2, G2, Gs2, A2, As2, B2
     }
 
     public AudioSource audioSource;

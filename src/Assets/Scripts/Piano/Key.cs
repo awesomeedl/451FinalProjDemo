@@ -87,6 +87,9 @@ public class Key : MonoBehaviour
 
     public void OnKeyDown(GameObject keyJoint)
     {
+        Debug.Log("GOT HERE");
+        Debug.Assert(keyJoint != null);
+
         noteEffect.SetActive(true);
         keyJoint.transform.rotation = Quaternion.AngleAxis(30f, Vector3.left);
         foreach(var g in keyJoint.GetComponentsInChildren<NodePrimitive>())
